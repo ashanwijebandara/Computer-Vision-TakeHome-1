@@ -3,6 +3,8 @@ Computer Vision Take Home 1
 
 1. python -m venv myenv  
 
+Activate python env ->  myenv\Scripts\activate
+
 2. pip install opencv-python  
 
 3. python q1.py  
