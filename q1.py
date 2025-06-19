@@ -1,41 +1,21 @@
 import cv2
 import numpy as np
 
-def reduce_intensity_levels(image_path, levels):
-    # Ensure levels is a power of 2 and between 2 and 256
-    if levels not in [2 ** i for i in range(1, 9)]:
-        raise ValueError("Levels must be a power of 2 between 2 and 256")
+# Input from user
+levels = int(input("Enter the number of intensity levels (power of 2 between 2 and 256): "))
 
-    # Load image in grayscale
-    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    if img is None:
-        raise FileNotFoundError("Image not found. Please check the path.")
+original = cv2.imread('OIP.jpg')
+gray = cv2.imread('OIP.jpg', cv2.IMREAD_GRAYSCALE)
 
-    # Calculate intensity interval
-    factor = 256 // levels
+factor = 256 // levels
+reduced = (gray // factor) * factor
 
-    # Reduce intensity levels
-    reduced_img = (img // factor) * factor
+reduced_bgr = cv2.cvtColor(reduced, cv2.COLOR_GRAY2BGR)
 
-    return img, reduced_img
+if original.shape != reduced_bgr.shape:
+    reduced_bgr = cv2.resize(reduced_bgr, (original.shape[1], original.shape[0]))
 
-
-if __name__ == "__main__":
-    try:
-        #  Get image path from user
-        image_path = input("Enter the path to the image: ").strip()
-
-        #  Get number of intensity levels
-        levels = int(input("Enter the number of intensity levels (power of 2 between 2 and 256): "))
-
-        # Run the function
-        original, reduced = reduce_intensity_levels(image_path, levels)
-
-        # Display images
-        cv2.imshow("Original Image", original)
-        cv2.imshow(f"Reduced to {levels} Levels", reduced)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-    except Exception as e:
-        print("Error:", e)
+combined = np.hstack((original, reduced_bgr))
+cv2.imshow(f"Original (Left) | Reduced to {levels} Levels (Right)", combined)
+cv2.waitKey(0)
+cv2.destroyAllWindows()

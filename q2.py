@@ -1,30 +1,26 @@
 import cv2
+import numpy as np
 
-def apply_average_blur(image_path):
-    # Load the image in grayscale
-    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    if img is None:
-        raise FileNotFoundError("Image not found. Please check the path.")
+original = cv2.imread('OIP.jpg')
+gray = cv2.imread('OIP.jpg', cv2.IMREAD_GRAYSCALE)
 
-    # Apply average filters with different kernel sizes
-    blur_3x3 = cv2.blur(img, (3, 3))
-    blur_10x10 = cv2.blur(img, (10, 10))
-    blur_20x20 = cv2.blur(img, (20, 20))
+blur_3x3 = cv2.blur(gray, (3, 3))
+blur_10x10 = cv2.blur(gray, (10, 10))
+blur_20x20 = cv2.blur(gray, (20, 20))
 
-    # Display original and blurred images
-    cv2.imshow("Original Image", img)
-    cv2.imshow("3x3 Average Filter", blur_3x3)
-    cv2.imshow("10x10 Average Filter", blur_10x10)
-    cv2.imshow("20x20 Average Filter", blur_20x20)
+blur_3x3 = cv2.cvtColor(blur_3x3, cv2.COLOR_GRAY2BGR)
+blur_10x10 = cv2.cvtColor(blur_10x10, cv2.COLOR_GRAY2BGR)
+blur_20x20 = cv2.cvtColor(blur_20x20, cv2.COLOR_GRAY2BGR)
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+size = (original.shape[1], original.shape[0])
+blur_3x3 = cv2.resize(blur_3x3, size)
+blur_10x10 = cv2.resize(blur_10x10, size)
+blur_20x20 = cv2.resize(blur_20x20, size)
 
-if __name__ == "__main__":
-    try:
-        # Get image path from user
-        path = input("Enter the path to the image: ").strip()
-        apply_average_blur(path)
+row1 = np.hstack((original, blur_3x3))
+row2 = np.hstack((blur_10x10, blur_20x20))
+grid = np.vstack((row1, row2))
 
-    except Exception as e:
-        print("Error:", e)
+cv2.imshow("Original | 3x3 | 10x10 | 20x20 (2x2 Grid)", grid)
+cv2.waitKey(0)
+cv2.destroyAllWindows()

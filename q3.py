@@ -1,48 +1,23 @@
 import cv2
 import numpy as np
 
-def rotate_image(image, angle):
-    # Get image dimensions
-    (h, w) = image.shape[:2]
+image = cv2.imread('OIP.jpg')
+(h, w) = image.shape[:2]
+center = (w // 2, h // 2)
+M45 = cv2.getRotationMatrix2D(center, 45, 1.0)
+rotated_45 = cv2.warpAffine(image, M45, (w, h), borderMode=cv2.BORDER_REPLICATE)
+rotated_90 = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+target_height = 300
+def resize_to_height(img, height):
+    h, w = img.shape[:2]
+    new_w = int(w * (height / h))
+    return cv2.resize(img, (new_w, height))
 
-    # Find the center of the image
-    center = (w // 2, h // 2)
+image_resized = resize_to_height(image, target_height)
+rotated_45_resized = resize_to_height(rotated_45, target_height)
+rotated_90_resized = resize_to_height(rotated_90, target_height)
+combined = np.hstack((image_resized, rotated_45_resized, rotated_90_resized))
 
-    # Create the rotation matrix
-    rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
-
-    # Compute the size of the output image to fit the whole rotated image
-    cos = np.abs(rotation_matrix[0, 0])
-    sin = np.abs(rotation_matrix[0, 1])
-    new_w = int((h * sin) + (w * cos))
-    new_h = int((h * cos) + (w * sin))
-
-    # Adjust the rotation matrix to take into account translation
-    rotation_matrix[0, 2] += (new_w / 2) - center[0]
-    rotation_matrix[1, 2] += (new_h / 2) - center[1]
-
-    # Rotate the image
-    rotated = cv2.warpAffine(image, rotation_matrix, (new_w, new_h))
-    return rotated
-
-if __name__ == "__main__":
-    try:
-        path = input("Enter the path to the image: ").strip()
-        image = cv2.imread(path)
-
-        if image is None:
-            raise FileNotFoundError("Image not found or path incorrect")
-
-        # Rotate image
-        rotated_45 = rotate_image(image, 45)
-        rotated_90 = rotate_image(image, 90)
-
-        # Show images
-        cv2.imshow("Original Image", image)
-        cv2.imshow("Rotated 45 Degrees", rotated_45)
-        cv2.imshow("Rotated 90 Degrees", rotated_90)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-    except Exception as e:
-        print("Error:", e)
+cv2.imshow("Original | Rotated 45° | Rotated 90°", combined)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
